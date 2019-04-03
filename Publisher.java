@@ -2,7 +2,7 @@ public interface Publisher extends Node {
 
     void getBrokerList();
 
-    Broker hastTopic(Topic topic);
+    Broker hasTopic(Topic topic);
 
     void push(Topic topic, Value values);
 
