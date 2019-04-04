@@ -1,4 +1,3 @@
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -18,7 +17,6 @@ public class BrokerClass implements Broker {
     static ObjectInputStream in;
 
     public static void main(String[] args) {
-
         init(args);
     }
 
@@ -32,9 +30,10 @@ public class BrokerClass implements Broker {
         byte[] ipHash = calculateKeys(args);
         ArrayList<byte[]> lineIdHash = calculateKeys(ds);
 
+
         // compare hashes
         for (int i = 0; i < lineIdHash.size(); i++) {
-            if (DatatypeConverter.printHexBinary(ipHash).compareTo(DatatypeConverter.printHexBinary(lineIdHash.get(i))) == 1)
+            if (ipHash.toString().compareTo(lineIdHash.get(i).toString()) == 1)
                 System.out.println(lineIdHash.get(i));
         }
 
