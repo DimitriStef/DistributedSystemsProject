@@ -1,12 +1,13 @@
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 
 public class SubscriberClass implements Subscriber {
-    int port =  8888;
+    int port = 2534;
     String IP = "127.0.0.1";
     Socket requestSocket = null;
     ObjectOutputStream out = null;
@@ -29,17 +30,19 @@ public class SubscriberClass implements Subscriber {
                 in = new ObjectInputStream(requestSocket.getInputStream());
 
                 Info broker = (Info) in.readObject();
-                System.out.println(" Broker IP :"+broker.getIPaddress());
+                System.out.println(" Broker IP :" + broker.getIPaddress());
+                System.out.println(broker.getBrokers());
+                System.out.println(broker.getIPaddress());
+                System.out.println(broker.getBrokerLineIdHash().get(2));
+                System.out.println(broker.getPort());
 
                 out.flush();
-
-
             }
 
         } catch (IOException ioException) {
             ioException.printStackTrace();
-        }catch (ClassNotFoundException e) {
-                   e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         } finally {
             try {
                 disconnect();
@@ -78,8 +81,6 @@ public class SubscriberClass implements Subscriber {
     public void init() {
 
     }
-
-
 
 
     @Override

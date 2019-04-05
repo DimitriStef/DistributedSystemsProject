@@ -6,6 +6,6 @@ public class BrokerMain {
         BrokerClass masterBroker = new BrokerClass(args);
         masterBroker.init();
         masterBroker.connect();
-
     }
+
 }
