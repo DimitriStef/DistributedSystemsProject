@@ -1,5 +1,3 @@
-import java.io.IOException;
-
 public class BrokerMain {
 
     public static void main(String[] args) {
@@ -7,13 +5,7 @@ public class BrokerMain {
         // create first broker. needs arguments
         BrokerClass masterBroker = new BrokerClass(args);
         masterBroker.init();
+        masterBroker.connect();
 
-        while (true) {
-            try {
-                masterBroker.connect();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
