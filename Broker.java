@@ -5,9 +5,9 @@ public interface Broker extends Node {
     ArrayList<Subscriber> registeredSubscribers = new ArrayList<Subscriber>();
     ArrayList<Publisher> registeredPublishers = new ArrayList<Publisher>();
 
-    static Publisher acceptConnection(Publisher pub){return pub;};
+    Publisher acceptConnection(Publisher pub);
 
-    static Subscriber acceptConnection(Subscriber sub){return sub;};
+    Subscriber acceptConnection(Subscriber sub);
 
     void notifyPublishers(String str);
 

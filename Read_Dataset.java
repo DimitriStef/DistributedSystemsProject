@@ -26,7 +26,6 @@ public class Read_Dataset {
         */
     }
 
-
     //read all txt files
     public static void getDataFiles(File file) throws IOException {
         Read_Dataset rd = new Read_Dataset();

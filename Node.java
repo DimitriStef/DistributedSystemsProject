@@ -6,11 +6,11 @@ public interface Node {
 
     ArrayList<Broker> brokers = new ArrayList<Broker>();
 
-    static void init(int port){};
+    void init();
 
-    static void connect() throws IOException{};
+    void connect() throws IOException;
 
-    static void disconnect() throws IOException{};
+    void disconnect() throws IOException;
 
     void updateNodes();
 

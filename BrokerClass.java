@@ -10,17 +10,20 @@ import java.util.ArrayList;
 
 public class BrokerClass implements Broker {
 
-    static private ArrayList<Broker> brokers;
-    static ServerSocket providerSocket;
-    static Socket connection;
-    static ObjectOutputStream out;
-    static ObjectInputStream in;
+    private ArrayList<Broker> brokers;
+    private ServerSocket providerSocket;
+    private Socket connection;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
+    private String[] args;
 
-    public static void main(String[] args) {
-        init(args);
+    // constructor, writes IP and Port of broker object
+    public BrokerClass(String[] args) {
+        this.args = args;
     }
 
-    public static void init(String[] args) {
+    // read dataset, create hashes, create providerSocket
+    public void init() {
         Read_Dataset ds = new Read_Dataset();
         try {
             ds.readDataset();
@@ -30,32 +33,29 @@ public class BrokerClass implements Broker {
         byte[] ipHash = calculateKeys(args);
         ArrayList<byte[]> lineIdHash = calculateKeys(ds);
 
-
-        // compare hashes
+        // compare hashes, "debugging" purposes
         for (int i = 0; i < lineIdHash.size(); i++) {
             if (ipHash.toString().compareTo(lineIdHash.get(i).toString()) == 1)
                 System.out.println(lineIdHash.get(i));
         }
 
+        // create providerSocket
         try {
             providerSocket = new ServerSocket(Integer.parseInt(args[1]));
-
-            while (true) {
-                connect();
-                disconnect();
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void connect() throws IOException {
+    // try connection with client, read and return Node if accepted
+    public void connect() throws IOException {
         connection = providerSocket.accept();
         out = new ObjectOutputStream(connection.getOutputStream());
         in = new ObjectInputStream(connection.getInputStream());
 
         try {
-            Object node = in.readObject();
+            // if connected, accept pub or sub object casted as Node
+            Node node = (Node) in.readObject();
             if (node instanceof Publisher)
                 out.writeObject(acceptConnection((Publisher) node));
             else if (node instanceof Subscriber)
@@ -69,7 +69,7 @@ public class BrokerClass implements Broker {
         out.flush();
     }
 
-    public static void disconnect() throws IOException {
+    public void disconnect() throws IOException {
         in.close();
         out.close();
         connection.close();
@@ -86,16 +86,11 @@ public class BrokerClass implements Broker {
         this.brokers = brokers;
     }
 
-    public static byte[] calculateKeys(String[] args) {
+    public byte[] calculateKeys(String[] args) {
         try {
-            byte[] bytes = (args[0] + args[1]).getBytes("UTF-8");
+            byte[] IPandPortBytes = (args[0] + args[1]).getBytes("UTF-8");
             MessageDigest md5 = MessageDigest.getInstance("MD5");
-            for (String toHash : args) {
-                md5.update(toHash.getBytes("UTF-8"));
-            }
-            md5.digest(bytes);
-
-            return bytes;
+            return md5.digest(IPandPortBytes);
 
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -106,20 +101,22 @@ public class BrokerClass implements Broker {
         return null;
     }
 
-    public static ArrayList<byte[]> calculateKeys(Read_Dataset ds) {
+    public ArrayList<byte[]> calculateKeys(Read_Dataset ds) {
         ArrayList<byte[]> hashes = new ArrayList<byte[]>();
-
+        byte[] lineIDBytes = new byte[0];
         for (int i = 0; i < ds.busLines.size(); i++) {
-            byte[] msg = new byte[0];
             try {
-                msg = ((Read_Dataset.BusLines) (ds.busLines.get(i))).LineID.getBytes("UTF-8");
+                lineIDBytes = ((Read_Dataset.BusLines) (ds.busLines.get(i))).LineID.getBytes("UTF-8");
+
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
+
             try {
                 MessageDigest md = MessageDigest.getInstance("MD5");
-                byte[] bytes = md.digest(msg);
-                hashes.add(bytes);
+                byte[] lineIDHash = md.digest(lineIDBytes);
+                hashes.add(lineIDHash);
+
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
@@ -128,11 +125,11 @@ public class BrokerClass implements Broker {
         return hashes;
     }
 
-    public static Publisher acceptConnection(Publisher pub) {
+    public Publisher acceptConnection(Publisher pub) {
         return pub;
     }
 
-    public static Subscriber acceptConnection(Subscriber sub) {
+    public Subscriber acceptConnection(Subscriber sub) {
         return sub;
     }
 
