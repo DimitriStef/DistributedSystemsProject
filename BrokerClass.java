@@ -90,6 +90,7 @@ public class BrokerClass implements Broker {
         try {
             byte[] IPandPortBytes = (args[0] + args[1]).getBytes("UTF-8");
             MessageDigest md5 = MessageDigest.getInstance("MD5");
+            md5.update(IPandPortBytes);
             return md5.digest(IPandPortBytes);
 
         } catch (UnsupportedEncodingException e) {
@@ -103,20 +104,16 @@ public class BrokerClass implements Broker {
 
     public ArrayList<byte[]> calculateKeys(Read_Dataset ds) {
         ArrayList<byte[]> hashes = new ArrayList<byte[]>();
-        byte[] lineIDBytes = new byte[0];
+
+        byte[] lineIDBytes;
         for (int i = 0; i < ds.busLines.size(); i++) {
             try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
                 lineIDBytes = ((Read_Dataset.BusLines) (ds.busLines.get(i))).LineID.getBytes("UTF-8");
-
+                md.update(lineIDBytes);
+                hashes.add(md.digest(lineIDBytes));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
-            }
-
-            try {
-                MessageDigest md = MessageDigest.getInstance("MD5");
-                byte[] lineIDHash = md.digest(lineIDBytes);
-                hashes.add(lineIDHash);
-
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
