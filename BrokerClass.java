@@ -1,90 +1,72 @@
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
-public class BrokerClass implements Broker, Serializable {
+public class BrokerClass implements Broker {
 
-    private ArrayList<Broker> brokers = new ArrayList<>();
-    private transient ServerSocket providerSocket = null;
-    private transient Socket connection = null;
-    private transient ObjectOutputStream out = null;
-    private transient ObjectInputStream in = null;
-    private ArrayList<byte[]> brokerLineIdHash = new ArrayList<>();
+    private ArrayList<Broker> brokers;
+    private ServerSocket providerSocket;
+    private Socket connection;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
     private String[] args;
-    private String IPaddress;
-    private int port;
-    private byte[] brokerIPHash;
 
     // constructor, writes IP and Port of broker object
     public BrokerClass(String[] args) {
         this.args = args;
-        IPaddress = args[0];
-        port = Integer.parseInt(args[1]);
-        brokers.add(this);
     }
 
     // read dataset, create hashes, create providerSocket
     public void init() {
-        ReadDataset ds = new ReadDataset();
-
-        brokerIPHash = calculateKeys(IPaddress,port);
+        Read_Dataset ds = new Read_Dataset();
+        try {
+            ds.readDataset();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        byte[] ipHash = calculateKeys(args);
         ArrayList<byte[]> lineIdHash = calculateKeys(ds);
 
         // compare hashes, "debugging" purposes
         for (int i = 0; i < lineIdHash.size(); i++) {
-            if (brokerIPHash.toString().compareTo(lineIdHash.get(i).toString()) == 1) {
-                System.out.println("Broker Key :"+lineIdHash.get(i));
-                brokerLineIdHash.add(lineIdHash.get(i));
-            }
+            if (ipHash.toString().compareTo(lineIdHash.get(i).toString()) == 1)
+                System.out.println(lineIdHash.get(i));
         }
 
         // create providerSocket
         try {
-            providerSocket = new ServerSocket(port);
+            providerSocket = new ServerSocket(Integer.parseInt(args[1]));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-
     // try connection with client, read and return Node if accepted
-    public void connect() {
+    public void connect() throws IOException {
+        connection = providerSocket.accept();
+        out = new ObjectOutputStream(connection.getOutputStream());
+        in = new ObjectInputStream(connection.getInputStream());
 
         try {
-           /* // if connected, accept pub or sub object casted as Node
+            // if connected, accept pub or sub object casted as Node
             Node node = (Node) in.readObject();
             if (node instanceof Publisher)
                 out.writeObject(acceptConnection((Publisher) node));
             else if (node instanceof Subscriber)
-                out.writeObject(acceptConnection((Subscriber) node));*/
+                out.writeObject(acceptConnection((Subscriber) node));
 
-            System.out.println("Accepting connection from Subscriber...");
-
-            while (true) {
-                connection = providerSocket.accept();
-                out = new ObjectOutputStream(connection.getOutputStream());
-                //in = new ObjectInputStream(connection.getInputStream());
-
-                sendInfoToSubscribers();
-            }
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        } finally {
-            try {
-                disconnect();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
-    }
 
-    //send informations about brokers to Subscribers
-    private void sendInfoToSubscribers() throws IOException {
-        out.writeObject(new Info(brokers,brokerLineIdHash,IPaddress,port));
-        System.out.println("Info accepted by subscriber...");
+        out.writeObject("Connection successful");
+        out.flush();
     }
 
     public void disconnect() throws IOException {
@@ -104,9 +86,9 @@ public class BrokerClass implements Broker, Serializable {
         this.brokers = brokers;
     }
 
-    public byte[] calculateKeys(String IPaddress, int port) {
+    public byte[] calculateKeys(String[] args) {
         try {
-            byte[] IPandPortBytes = (IPaddress + port).getBytes("UTF-8");
+            byte[] IPandPortBytes = (args[0] + args[1]).getBytes("UTF-8");
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             return md5.digest(IPandPortBytes);
 
@@ -119,12 +101,12 @@ public class BrokerClass implements Broker, Serializable {
         return null;
     }
 
-    public ArrayList<byte[]> calculateKeys(ReadDataset ds) {
+    public ArrayList<byte[]> calculateKeys(Read_Dataset ds) {
         ArrayList<byte[]> hashes = new ArrayList<byte[]>();
         byte[] lineIDBytes = new byte[0];
-        for (int i = 0; i < ds.getBusLines().size(); i++) {
+        for (int i = 0; i < ds.busLines.size(); i++) {
             try {
-                lineIDBytes = ((ReadDataset.BusLine) (ds.getBusLines().get(i))).getLineID().getBytes("UTF-8");
+                lineIDBytes = ((Read_Dataset.BusLines) (ds.busLines.get(i))).LineID.getBytes("UTF-8");
 
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
@@ -158,13 +140,4 @@ public class BrokerClass implements Broker, Serializable {
     public void pull(Topic topic) {
 
     }
-
-    public String getIPaddress() {
-        return IPaddress;
-    }
-
-    public ArrayList<byte[]> getBrokerLineIdHash() {
-        return brokerLineIdHash;
-    }
-
 }

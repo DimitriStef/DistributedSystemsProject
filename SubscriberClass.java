@@ -27,7 +27,7 @@ public class SubscriberClass implements Subscriber {
 
             //BrokerClass brokers = (BrokerClass) brokerInfo.getBrokers().get(0);
             setBrokers(brokerInfo.getBrokers());
-            System.out.println("BrokerInfo getBrokerLineIdHash :" + brokerInfo.getBrokerLineIdHash()+"\n");
+            System.out.println("BrokerInfo getBrokerLineIdHash :" + brokerInfo.getBrokerLineIdHash() + "\n");
             out.flush();
             disconnect();
 
@@ -44,8 +44,7 @@ public class SubscriberClass implements Subscriber {
         }
     }
 
-    @Override
-    public void register(Broker broker, ReadDataset.BusLine busLine)  {
+    public void register(Broker broker, ReadDataset.BusLine busLine) {
         //ta IP/port einai proswrina, kanonika broker.IP/broker.port
         try {
             System.out.println("Subscriber registering to Broker...\n");
@@ -72,8 +71,17 @@ public class SubscriberClass implements Subscriber {
         }
     }
 
-    @Override
     public void unregister(Broker broker, ReadDataset.BusLine busLine) {
+
+    }
+
+    @Override
+    public void getBrokerList() {
+
+    }
+
+    @Override
+    public void hashTopic() {
 
     }
 
@@ -101,7 +109,7 @@ public class SubscriberClass implements Subscriber {
     }
 
     @Override
-    public  ArrayList<Broker> getBrokers() {
+    public ArrayList<Broker> getBrokers() {
         return brokers;
     }
 
