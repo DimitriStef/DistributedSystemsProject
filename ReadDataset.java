@@ -7,15 +7,19 @@ import java.util.ArrayList;
 
 class ReadDataset {
 
-    private ArrayList<BusLines> busLines = new ArrayList<>();
-    private ArrayList<BusPositions> busPositions = new ArrayList<>();
-    private ArrayList<RouteCodes> routeCodes = new ArrayList<>();
+    private ArrayList<BusLine> busLines = new ArrayList<>();
+    private ArrayList<BusPosition> busPositions = new ArrayList<>();
+    private ArrayList<RouteCode> routeCodes = new ArrayList<>();
 
-    public void readDataset() throws IOException {
+    public  ReadDataset()  {
         String dir = "dataset";
         //create file object
         File file = new File(dir);
-        getDataFiles(file);
+        try {
+            getDataFiles(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //get All lineID's from dataset
@@ -30,7 +34,7 @@ class ReadDataset {
 
     //read all txt files
     public void getDataFiles(File file) throws IOException {
-        ReadDataset rd = new ReadDataset();
+        //ReadDataset rd = new ReadDataset();
         BufferedReader breader = null;
         String fileName;
 
@@ -43,21 +47,21 @@ class ReadDataset {
             if (fileName.equals("busLinesNew.txt")) {
                 while (line != null) {
                     data = line.trim().split("\\,");
-                    busLines.add(rd.new BusLines(data[0], data[1], data[2]));
+                    busLines.add(new BusLine(data[0], data[1], data[2]));
                     line = breader.readLine();
                 }
             }
             if (fileName.equals("busPositionsNew.txt")) {
                 while (line != null) {
                     data = line.trim().split("\\,");
-                    busPositions.add(rd.new BusPositions(data[0], data[1], data[2], Double.parseDouble(data[3]), Double.parseDouble(data[4]), data[5]));
+                    busPositions.add(new BusPosition(data[0], data[1], data[2], Double.parseDouble(data[3]), Double.parseDouble(data[4]), data[5]));
                     line = breader.readLine();
                 }
             }
             if (fileName.equals("RouteCodesNew.txt")) {
                 while (line != null) {
                     data = line.trim().split("\\,");
-                    routeCodes.add(rd.new RouteCodes(data[0], data[1], data[2], data[3]));
+                    routeCodes.add(new RouteCode(data[0], data[1], data[2], data[3]));
                     line = breader.readLine();
                 }
             }
@@ -71,20 +75,20 @@ class ReadDataset {
         }
     }
 
-    public ArrayList<BusLines> getBusLines() {
+    public ArrayList<BusLine> getBusLines() {
         return busLines;
     }
 
-    public ArrayList<BusPositions> getBusPositions() {
+    public ArrayList<BusPosition> getBusPositions() {
         return busPositions;
     }
 
-    public ArrayList<RouteCodes> getRouteCodes() {
+    public ArrayList<RouteCode> getRouteCodes() {
         return routeCodes;
     }
 
 
-    public class BusLines {
+    public class BusLine {
 		/*Format: LineCode,LineId,DescriptionEnglish
 		Perigrafi:
 		LineCode: Unique id tis grammis
@@ -95,10 +99,14 @@ class ReadDataset {
         private String LineID;
         private String DescriptionEnglish;
 
-        BusLines(String LineCode, String LineID, String DescriptionEnglish) {
+        BusLine(String LineCode, String LineID, String DescriptionEnglish) {
             this.LineCode = LineCode;
             this.LineID = LineID;
             this.DescriptionEnglish = DescriptionEnglish;
+        }
+
+        public BusLine() {
+
         }
 
         public String getLineCode() {
@@ -118,7 +126,7 @@ class ReadDataset {
         }
     }
 
-    public class BusPositions {
+    public class BusPosition {
 		/*Format: LineCode,RouteCode,vehicleId,latitude,longitude,timestampOfBusPosition
 		Perigrafi:
 		LineCode: Unique id tis grammis
@@ -135,7 +143,7 @@ class ReadDataset {
         double longitude;
         String timestampOfBusPosition;
 
-        BusPositions(String LineCode, String RouteCode, String vehicleID, double latitude, double longitude, String timestampOfBusPosition) {
+        BusPosition(String LineCode, String RouteCode, String vehicleID, double latitude, double longitude, String timestampOfBusPosition) {
             this.LineCode = LineCode;
             this.RouteCode = RouteCode;
             this.vehicleID = vehicleID;
@@ -149,7 +157,7 @@ class ReadDataset {
         }
     }
 
-    public class RouteCodes {
+    public class RouteCode {
 		/*Format: RouteCode,LineCode,RouteType,DescriptionEnglish
 		Perigrafi:
 		RouteCode: UniqueId diadromis lewforeiou, diaforetiko apo afetiria pros terma kai apo terma pros afetiria (px gia tin grammi 821-> 1804 "Marasleios-Nea Kypseli" kai 1805 gia "Nea Kypseli-Marasleio")
@@ -162,7 +170,7 @@ class ReadDataset {
         String RouteType;
         String DescriptionEnglish;
 
-        RouteCodes(String RouteCode, String LineCode, String RouteType, String DescriptionEnglish) {
+        RouteCode(String RouteCode, String LineCode, String RouteType, String DescriptionEnglish) {
             this.RouteCode = RouteCode;
             this.LineCode = LineCode;
             this.RouteType = RouteType;

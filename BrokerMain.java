@@ -1,11 +1,13 @@
+import java.io.IOException;
+
 public class BrokerMain {
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws IOException {
         // create first broker. needs arguments
-        BrokerClass masterBroker = new BrokerClass(args);
+        Broker masterBroker = new BrokerClass(args);
         masterBroker.init();
         masterBroker.connect();
+
     }
 
 }

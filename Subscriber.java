@@ -2,13 +2,9 @@ import java.io.IOException;
 
 public interface Subscriber extends Node {
 
-    void register(Broker broker, Topic topic);
+    void register(Broker broker, ReadDataset.BusLine busLine);
 
-    void disconnect(Broker broker, Topic topic);
-
-    void getBrokerList();
-
-    void hashTopic();
+    void unregister(Broker broker, ReadDataset.BusLine busLine);
 
     void notifyFailure(Broker broker);
 }

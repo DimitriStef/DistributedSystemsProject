@@ -18,7 +18,6 @@ public class BrokerClass implements Broker, Serializable {
     private int port;
     private byte[] brokerIPHash;
 
-
     // constructor, writes IP and Port of broker object
     public BrokerClass(String[] args) {
         this.args = args;
@@ -31,19 +30,15 @@ public class BrokerClass implements Broker, Serializable {
     public void init() {
         ReadDataset ds = new ReadDataset();
 
-        try {
-            ds.readDataset();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         brokerIPHash = calculateKeys(IPaddress,port);
         ArrayList<byte[]> lineIdHash = calculateKeys(ds);
 
         // compare hashes, "debugging" purposes
         for (int i = 0; i < lineIdHash.size(); i++) {
-            if (brokerIPHash.toString().compareTo(lineIdHash.get(i).toString()) == 1)
-                System.out.println(lineIdHash.get(i));
+            if (brokerIPHash.toString().compareTo(lineIdHash.get(i).toString()) == 1) {
+                System.out.println("Broker Key :"+lineIdHash.get(i));
                 brokerLineIdHash.add(lineIdHash.get(i));
+            }
         }
 
         // create providerSocket
@@ -71,7 +66,7 @@ public class BrokerClass implements Broker, Serializable {
             while (true) {
                 connection = providerSocket.accept();
                 out = new ObjectOutputStream(connection.getOutputStream());
-                in = new ObjectInputStream(connection.getInputStream());
+                //in = new ObjectInputStream(connection.getInputStream());
 
                 sendInfoToSubscribers();
             }
@@ -129,7 +124,7 @@ public class BrokerClass implements Broker, Serializable {
         byte[] lineIDBytes = new byte[0];
         for (int i = 0; i < ds.getBusLines().size(); i++) {
             try {
-                lineIDBytes = ((ReadDataset.BusLines) (ds.getBusLines().get(i))).getLineID().getBytes("UTF-8");
+                lineIDBytes = ((ReadDataset.BusLine) (ds.getBusLines().get(i))).getLineID().getBytes("UTF-8");
 
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
